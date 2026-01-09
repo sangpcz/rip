@@ -1,82 +1,9 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>QR Chuyển Khoản</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .box {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      width: 100%;
-      max-width: 360px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    img {
-      width: 280px;
-      max-width: 100%;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 12px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      background: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-
-    button:active {
-      background: #0056b3;
-    }
-
-    .note {
-      font-size: 13px;
-      color: #555;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-
-<body>
-
-<div class="box">
-  <h3>Quét QR để chuyển khoản</h3>
-
-  <!-- QR -->
-  <img id="qr" alt="QR chuyển khoản">
-
-  <!-- Nút tải -->
-  <a id="downloadBtn" download="qr-chuyen-khoan.png" style="display:none"></a>
-  <button onclick="downloadQR()">📥 Tải QR về máy</button>
-
-  <div class="note">
-    Mở app ngân hàng → Quét QR → Nhập số tiền
-  </div>
-</div>
-
 <script>
   // ====== THÔNG TIN CỦA BẠN ======
-  const BANK_CODE = "VCB";                 // Mã ngân hàng
-  const ACCOUNT_NO = "9337533795";         // Số tài khoản
-  const ACCOUNT_NAME = "NGUYEN BA SANG";     // Tên chủ TK
-  const ADD_INFO = "Thanh toan";            // Nội dung chuyển khoản
+  const BANK_CODE = "VCB";
+  const ACCOUNT_NO = "9337533795";
+  const ACCOUNT_NAME = "NGUYEN BA SANG";
+  const ADD_INFO = "Thanh toan";
   // ===============================
 
   const baseUrl =
@@ -85,21 +12,29 @@
   const params = new URLSearchParams({
     addInfo: ADD_INFO,
     accountName: ACCOUNT_NAME,
-    t: Date.now() // chống cache, KHÔNG hiện 0đ
+    t: Date.now() // chống cache
   });
 
   const qrUrl = baseUrl + "?" + params.toString();
+  document.getElementById("qr").src = qrUrl;
 
-  const qrImg = document.getElementById("qr");
-  const downloadBtn = document.getElementById("downloadBtn");
+  // ====== HÀM TẢI QR ======
+  async function downloadQR() {
+    try {
+      const res = await fetch(qrUrl);
+      const blob = await res.blob();
 
-  qrImg.src = qrUrl;
-  downloadBtn.href = qrUrl;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "qr-chuyen-khoan.png";
+      document.body.appendChild(a);
+      a.click();
 
-  function downloadQR() {
-    downloadBtn.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert("Không tải được QR. Vui lòng giữ ảnh để lưu.");
+    }
   }
 </script>
-
-</body>
-</html>
